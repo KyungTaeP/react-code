@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import PostMain from './pages/PostMain';
 import PostForm from './pages/PostForm';
-import PostList from './pages/PostList';
 import PostDetail from './pages/PostDetail';
 import PostEdit from './pages/PostEdit';
 
@@ -27,7 +26,6 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/posts" element={<PostMain />} />
       <Route path="/posts/new" element={<PostForm />} />
-      <Route path="/postslist" element={<PostList />} />
       <Route path="/posts/:id" element={<PostDetail />} />
       <Route path="/posts/:id/edit" element={<PostEdit />} />
       <Route path="*" element={<Navigate to="/login" />} />
