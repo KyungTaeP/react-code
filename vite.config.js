@@ -8,4 +8,14 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+  proxy: {
+    '/api': {
+      target: 'https://front-mission.bigs.or.kr',
+      changeOrigin: true,
+       rewrite: path => path.replace(/^\/api/, ''),
+      // rewrite: path => path.replace(/^\/api/, '/auth'),
+    }
+  }
+}
 })

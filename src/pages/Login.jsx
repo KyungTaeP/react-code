@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { login } from '../services/api';
@@ -8,6 +8,14 @@ function Login() {
   const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // ✅ 로그인 상태일 경우 자동으로 /posts로 리디렉션
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      navigate('/posts');
+    }
+  }, []);
+
   const handleChange = e =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -15,7 +23,16 @@ function Login() {
     e.preventDefault();
     try {
       const res = await login(form);
-      setAuth({ ...res });
+
+      // 이메일에 따라 name 값 고정
+      const userName = form.username === 'developer@bigs.or.kr' ? '개발자' : res.name;
+
+      // ✅ accessToken, refreshToken 저장
+      localStorage.setItem('accessToken', res.accessToken);
+      localStorage.setItem('refreshToken', res.refreshToken);
+      localStorage.setItem('userData', JSON.stringify({ username: form.username, name: userName }));
+
+      setAuth({ accessToken: res.accessToken, refreshToken: res.refreshToken });
       navigate('/posts');
     } catch (err) {
       console.error(err);
@@ -27,16 +44,17 @@ function Login() {
     <div className="fixed inset-0 bg-gray-100 flex items-center justify-center">
       <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center text-black mb-6">로그인</h2>
-        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+        {/* autoComplete="off" */}
+        <form onSubmit={handleSubmit} className="space-y-5" >
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
               id="email"
-              name="login_email"  
+              name="username"
               type="email"
-              autoComplete="new-email" // 자동완성 완전 방지
+              autoComplete="new-email"
               value={form.username}
               onChange={handleChange}
               placeholder="you@example.com"
@@ -50,7 +68,7 @@ function Login() {
             </label>
             <input
               id="password"
-              name="login_pass"
+              name="password"
               type="password"
               autoComplete="new-password"
               value={form.password}
@@ -60,10 +78,6 @@ function Login() {
             />
           </div>
           <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="form-checkbox" />
-              <span className="text-gray-700">로그인 상태 유지</span>
-            </label>
             <a href="#" className="text-blue-500 hover:underline">
               비밀번호를 잊으셨나요?
             </a>
